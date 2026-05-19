@@ -1,0 +1,187 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Personal Finance Tracker</title>
+  <link rel="stylesheet" href="styles.css" />
+  <style>
+    /* Fallback minimal styles in case CSS fails to load. */
+    body{font-family:system-ui,Segoe UI,Roboto,Arial,sans-serif;margin:0;background:#0b1220;color:#e8eefc}
+    .container{max-width:1200px;margin:0 auto;padding:16px}
+  </style>
+</head>
+<body>
+  <header class="app-header">
+    <div class="container header-inner">
+      <div class="brand">
+        <div class="brand-mark" aria-hidden="true">₹</div>
+        <div>
+<h1>Personal Finance Tracker</h1>
+          <p>Expenses • Budgets • Charts</p>
+        </div>
+      </div>
+
+      <div class="header-actions">
+        <button id="themeToggle" class="btn btn-ghost" type="button" title="Toggle dark/light">🌓</button>
+      </div>
+    </div>
+  </header>
+
+  <main class="container">
+    <section class="grid grid-2" aria-label="Summary and Budget">
+      <div class="card">
+        <h2>Monthly Summary</h2>
+        <div class="summary-cards" id="summaryCards"></div>
+        <div class="inline-form" style="margin-top:12px;">
+          <label class="field">
+            <span>Month</span>
+            <input id="monthPicker" type="month" />
+          </label>
+        </div>
+      </div>
+
+      <div class="card">
+        <h2>Set Monthly Budget</h2>
+        <form id="budgetForm" class="form">
+          <label class="field">
+            <span>Budget (₹)</span>
+            <input id="budgetAmount" type="number" min="0" step="0.01" placeholder="e.g., 50000" required />
+          </label>
+          <button class="btn btn-primary" type="submit">Save Budget</button>
+        </form>
+        <div class="budget-remaining" style="margin-top:12px;">
+          <div class="muted">Remaining</div>
+          <div class="money" id="remainingBudget">—</div>
+        </div>
+      </div>
+    </section>
+
+    <section class="grid grid-2" aria-label="Expense management">
+      <div class="card">
+        <div class="card-title-row">
+          <h2>Add Expense</h2>
+        </div>
+        <form id="expenseForm" class="form">
+          <div class="grid grid-2">
+            <label class="field">
+              <span>Title</span>
+              <input id="expenseTitle" type="text" maxlength="60" placeholder="e.g., Groceries" required />
+            </label>
+            <label class="field">
+              <span>Amount (₹)</span>
+              <input id="expenseAmount" type="number" min="0" step="0.01" placeholder="e.g., 799" required />
+            </label>
+          </div>
+
+          <div class="grid grid-2">
+            <label class="field">
+              <span>Category</span>
+              <select id="expenseCategory" required>
+                <option value="Food">Food</option>
+                <option value="Travel">Travel</option>
+                <option value="Shopping">Shopping</option>
+                <option value="Bills">Bills</option>
+                <option value="Health">Health</option>
+                <option value="Education">Education</option>
+                <option value="Entertainment">Entertainment</option>
+                <option value="Other">Other</option>
+              </select>
+            </label>
+
+            <label class="field">
+              <span>Date</span>
+              <input id="expenseDate" type="date" required />
+            </label>
+          </div>
+
+          <div class="form-actions">
+            <button class="btn btn-primary" type="submit" id="addExpenseBtn">Add Expense</button>
+            <button class="btn btn-ghost" type="button" id="cancelEditBtn" hidden>Cancel Edit</button>
+          </div>
+        </form>
+      </div>
+
+      <div class="card">
+        <div class="card-title-row">
+          <h2>Expenses</h2>
+          <div class="actions-row">
+            <button id="exportCsvBtn" class="btn btn-ghost" type="button" title="Export to CSV">Export CSV</button>
+          </div>
+        </div>
+
+        <div class="filters">
+          <label class="field">
+            <span>Search</span>
+            <input id="searchInput" type="search" placeholder="Search by title or category..." />
+          </label>
+
+          <label class="field">
+            <span>Category Filter</span>
+            <select id="categoryFilter">
+              <option value="All">All</option>
+            </select>
+          </label>
+        </div>
+
+        <div class="list-toolbar">
+          <div class="muted">Showing</div>
+          <div class="pill" id="resultCount">0 items</div>
+        </div>
+
+        <div class="table-wrap">
+          <table class="expense-table" aria-label="Expense list">
+            <thead>
+              <tr>
+                <th>Title</th>
+                <th>Category</th>
+                <th>Date</th>
+                <th style="text-align:right;">Amount</th>
+                <th style="text-align:right;">Actions</th>
+              </tr>
+            </thead>
+            <tbody id="expenseTbody"></tbody>
+          </table>
+        </div>
+
+        <div id="emptyState" class="empty" hidden>
+          No expenses found. Add your first expense to see charts and summary.
+        </div>
+      </div>
+    </section>
+
+    <section class="card charts" aria-label="Charts">
+      <div class="card-title-row">
+        <h2>Spending Distribution</h2>
+        <div class="muted" id="chartMeta"></div>
+      </div>
+
+      <div class="charts-grid">
+        <div class="chart-box">
+          <canvas id="categoryChart" height="220"></canvas>
+          <div class="chart-legend" id="categoryLegend"></div>
+        </div>
+        <div class="chart-box">
+          <canvas id="dailyChart" height="220"></canvas>
+          <div class="chart-legend" id="dailyLegend"></div>
+        </div>
+      </div>
+
+      <div class="muted small" style="margin-top:10px;">
+        Tip: All data is saved locally in your browser using LocalStorage.
+      </div>
+    </section>
+  </main>
+
+  <footer class="footer">
+    <div class="container footer-inner">
+      <span>Made for internship • Indian Personal Finance Tracker</span>
+    </div>
+  </footer>
+
+  <!-- Chart.js (optional dependency; if offline, charts still render gracefully) -->
+  <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.1/dist/chart.umd.min.js"></script>
+  <script src="app.js"></script>
+</body>
+</html>
+
