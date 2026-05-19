@@ -1,4 +1,4 @@
-# Indian Personal Finance Tracker (Expense & Budget Manager)
+# Personal Finance Tracker (Expense & Budget Manager)
 
 A responsive personal finance tracker web app built with **HTML, CSS, and JavaScript**.
 
